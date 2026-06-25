@@ -147,6 +147,16 @@
         .topbar .user-info .avatar { width: 36px; height: 36px; border-radius: 50%; background: #003366; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
         .content { padding: 32px; }
         .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 45; }
+
+        /* User dropdown */
+        .user-dropdown { position: relative; display: inline-flex; align-items: center; }
+        .user-dropdown .user-btn { background: none; border: none; color: #1f2937; font: inherit; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 4px 8px; border-radius: 8px; transition: background 0.2s; }
+        .user-dropdown .user-btn:hover { background: #f3f4f6; }
+        .user-dropdown .avatar { width: 36px; height: 36px; border-radius: 50%; background: #003366; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; }
+        .user-dropdown .user-menu { display: none; position: absolute; right: 0; top: calc(100% + 8px); background: white; border: 1px solid #e5e7eb; border-radius: 10px; min-width: 160px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); z-index: 200; padding: 6px 0; list-style: none; margin: 0; }
+        .user-dropdown .user-menu.show { display: block; }
+        .user-dropdown .user-menu li a { display: block; padding: 9px 16px; color: #374151; text-decoration: none; font-size: 14px; transition: background 0.15s; }
+        .user-dropdown .user-menu li a:hover { background: #f3f4f6; color: #003366; }
         body.sidebar-collapsed .sidebar { transform: translateX(-100%); }
         body.sidebar-collapsed .main-content { margin-left: 0; }
 
@@ -237,10 +247,29 @@
             }
         })();
 
+
         // Auto-dismiss toasts
         setTimeout(function () {
             document.querySelectorAll('.toast').forEach(function (el) { el.remove(); });
         }, 5000);
+
+        // User dropdown toggle
+        function toggleUserMenu(e) {
+            if (e) { e.stopPropagation(); }
+            var menu = document.getElementById('user-menu');
+            if (menu) {
+                menu.classList.toggle('show');
+            }
+        }
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function (e) {
+            var dropdown = document.querySelector('.user-dropdown');
+            var menu = document.getElementById('user-menu');
+            if (menu && dropdown && !dropdown.contains(e.target)) {
+                menu.classList.remove('show');
+            }
+        });
+
     </script>
     @stack('scripts')
 </body>

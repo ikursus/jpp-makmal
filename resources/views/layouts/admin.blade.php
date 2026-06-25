@@ -56,10 +56,10 @@
             <a href="{{ route('admin.profile.edit') }}" class="{{ request()->routeIs('admin.profile*') ? 'active' : '' }}">
                 <span class="icon">👤</span> Profil
             </a>
-            <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+            <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form-admin').submit();">
                 <span class="icon">🚪</span> Log Keluar
             </a>
-            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display:none;">@csrf</form>
+            <form id="logout-form-admin" action="{{ route('logout') }}" method="POST" style="display:none;">@csrf</form>
         </nav>
     </div>
     <div class="main-content">
@@ -67,15 +67,18 @@
             <div class="topbar-left">
                 <button type="button" class="menu-toggle" aria-label="Togol menu">☰</button>
             </div>
-            <div class="user-info">
-                <span>{{ auth()->user()->name }}</span>
-                <div class="avatar">{{ substr(auth()->user()->name, 0, 1) }}</div>
-                <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form-top').submit();" class="btn-logout" title="Log Keluar">
-                    🚪
-                </a>
-                <form id="logout-form-top" action="{{ route('logout') }}" method="POST" style="display:none;">@csrf</form>
+            <div class="user-dropdown">
+                <button class="user-btn" onclick="toggleUserMenu(event)">
+                    <span>{{ auth()->user()->name }} ({{ auth()->user()->district?->code ?? 'HQ' }})</span>
+                    <div class="avatar">{{ substr(auth()->user()->name, 0, 1) }}</div>
+                </button>
+                <ul class="user-menu" id="user-menu">
+                    <li><a href="{{ route('admin.profile.edit') }}">👤 Profil</a></li>
+                    <li><a href="#" onclick="event.preventDefault(); document.getElementById('logout-form-admin').submit();">🚪 Log Keluar</a></li>
+                </ul>
             </div>
         </div>
+
         <div class="content">
             @yield('admin-content')
         </div>
