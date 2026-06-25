@@ -91,11 +91,15 @@
         .pagination li.disabled { opacity: 0.5; }
 
         /* Layout / sidebar --------------------------------------------------- */
-        .sidebar { width: 260px; background: #003366; color: white; min-height: 100vh; position: fixed; top: 0; left: 0; z-index: 50; transition: transform 0.25s ease; }
-        .sidebar .logo { padding: 24px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar { width: 260px; background: #003366; color: white; height: 100vh; position: fixed; top: 0; left: 0; z-index: 50; transition: transform 0.25s ease; display: flex; flex-direction: column; }
+        .sidebar .logo { padding: 24px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; }
         .sidebar .logo h2 { font-size: 16px; font-weight: 700; }
         .sidebar .logo p { font-size: 11px; opacity: 0.7; margin-top: 4px; }
-        .sidebar nav { padding: 16px 0; }
+        .sidebar nav { padding: 16px 0; flex: 1; overflow-y: auto; }
+        .sidebar nav::-webkit-scrollbar { width: 6px; }
+        .sidebar nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.25); border-radius: 3px; }
+        .sidebar nav::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
+        .sidebar nav { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.25) transparent; }
         .sidebar nav a { display: flex; align-items: center; gap: 12px; padding: 12px 24px; color: rgba(255,255,255,0.7); text-decoration: none; font-size: 14px; transition: all 0.2s; }
         .sidebar nav a:hover, .sidebar nav a.active { background: rgba(255,255,255,0.1); color: white; border-left: 3px solid #00a651; }
         .sidebar nav a .icon { font-size: 18px; width: 24px; text-align: center; }
