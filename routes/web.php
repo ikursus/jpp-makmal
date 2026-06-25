@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\ItemController;
 use App\Http\Controllers\Admin\StorageLocationController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\AdminLoanController;
+use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\User\UserDashboardController;
 use App\Http\Controllers\User\UserInventoryController;
 use App\Http\Controllers\User\UserLoanApplicationController;
@@ -23,7 +24,9 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // ========== USER ROUTES (Pegawai Daerah) ==========
-Route::middleware(['auth', 'permission:view-dashboard'])
+// Restricted to the `user` role so admins/super admins never land in the user
+// panel — they stay in the admin panel even when viewing their own account.
+Route::middleware(['auth', 'role:user'])
     ->prefix('user')->name('user.')->group(function () {
 
     Route::get('/dashboard', [UserDashboardController::class, 'index'])
@@ -53,7 +56,9 @@ Route::middleware(['auth', 'permission:view-dashboard'])
 });
 
 // ========== ADMIN ROUTES (HQ) ==========
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+// Restricted to admin roles so the `user` role can never reach the admin panel,
+// even though both roles share the `view-dashboard` permission.
+Route::middleware(['auth', 'role:admin|super_admin'])->prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])
         ->middleware('permission:view-dashboard')->name('dashboard');
@@ -134,4 +139,10 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/statistics', function () {
         return view('admin.statistics');
     })->middleware('permission:view-reports')->name('statistics');
+
+    // Profil sendiri (kekal dalam panel admin — tiada permission tambahan diperlukan
+    // selain keahlian panel admin yang dikuatkuasakan oleh group middleware di atas).
+    Route::get('/profile', [AdminProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [AdminProfileController::class, 'update'])->name('profile.update');
+    Route::get('/profile/pdf', [AdminProfileController::class, 'downloadPdf'])->name('profile.pdf');
 });
