@@ -8,8 +8,11 @@ use App\Models\Loan;
 use App\Models\LoanItem;
 use App\Models\Item;
 use App\Models\ItemCondition;
+use App\Exports\Loans\LoansExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class AdminLoanController extends Controller
 {
@@ -113,10 +116,188 @@ class AdminLoanController extends Controller
 
     public function loans()
     {
-        $loans = Loan::with(['user', 'district', 'items.item'])
-            ->latest()
-            ->paginate(10);
-        return view('admin.loans.index', compact('loans'));
+        return view('admin.loans.index');
+    }
+
+    /**
+     * Export loans to Excel (XLSX)
+     */
+    public function exportXlsx(Request $request): BinaryFileResponse
+    {
+        $filters = $request->only(['search', 'status', 'district_id']);
+        $sortField = $request->get('sort_field', 'created_at');
+        $sortDirection = $request->get('sort_direction', 'desc');
+
+        return Excel::download(
+            new LoansExport($filters, $sortField, $sortDirection),
+            'rekod-pinjaman.xlsx',
+            \Maatwebsite\Excel\Excel::XLSX
+        );
+    }
+
+    /**
+     * Export loans to CSV
+     */
+    public function exportCsv(Request $request): BinaryFileResponse
+    {
+        $filters = $request->only(['search', 'status', 'district_id']);
+
+        return Excel::download(
+            new LoansExport($filters),
+            'rekod-pinjaman.csv',
+            \Maatwebsite\Excel\Excel::CSV
+        );
+    }
+
+    /**
+     * Export loans to ODS (OpenDocument Spreadsheet)
+     */
+    public function exportOds(Request $request): BinaryFileResponse
+    {
+        $filters = $request->only(['search', 'status', 'district_id']);
+
+        return Excel::download(
+            new LoansExport($filters),
+            'rekod-pinjaman.ods',
+            \Maatwebsite\Excel\Excel::ODS
+        );
+    }
+
+    /**
+     * Export loans to HTML
+     */
+    public function exportHtml(Request $request): BinaryFileResponse
+    {
+        $filters = $request->only(['search', 'status', 'district_id']);
+
+        return Excel::download(
+            new LoansExport($filters),
+            'rekod-pinjaman.html',
+            \Maatwebsite\Excel\Excel::HTML
+        );
+    }
+
+    /**
+     * Export loans to PDF (using DOMPDF via barryvdh/laravel-dompdf)
+     */
+    public function exportPdf(Request $request): BinaryFileResponse
+    {
+        $filters = $request->only(['search', 'status', 'district_id']);
+
+        return Excel::download(
+            new LoansExport($filters),
+            'rekod-pinjaman.pdf',
+            \Maatwebsite\Excel\Excel::DOMPDF
+        );
+    }
+
+    /**
+     * Export loans to PDF (using TCPDF)
+     */
+    public function exportTcpdf(Request $request): BinaryFileResponse
+    {
+        $filters = $request->only(['search', 'status', 'district_id']);
+
+        return Excel::download(
+            new LoansExport($filters),
+            'rekod-pinjaman-tcpdf.pdf',
+            \Maatwebsite\Excel\Excel::TCPDF
+        );
+    }
+
+    /**
+     * Export loans to PDF (using MPDF)
+     */
+    public function exportMpdf(Request $request): BinaryFileResponse
+    {
+        $filters = $request->only(['search', 'status', 'district_id']);
+
+        return Excel::download(
+            new LoansExport($filters),
+            'rekod-pinjaman-mpdf.pdf',
+            \Maatwebsite\Excel\Excel::MPDF
+        );
+    }
+
+    /**
+     * Export loans using Blade view template (FromView)
+     */
+    public function exportView(Request $request): BinaryFileResponse
+    {
+        $filters = $request->only(['search', 'status', 'district_id']);
+
+        return Excel::download(
+            new LoansExport($filters),
+            'rekod-pinjaman-view.xlsx',
+            \Maatwebsite\Excel\Excel::XLSX
+        );
+    }
+
+    /**
+     * Export loans - multiple sheets (by district)
+     */
+    public function exportMultipleSheets(): BinaryFileResponse
+    {
+        $filters = ['status' => request()->get('status')];
+
+        return Excel::download(
+            new LoansExport($filters),
+            'pinjaman-mengikut-daerah.xlsx',
+            \Maatwebsite\Excel\Excel::XLSX
+        );
+    }
+
+    /**
+     * Store export file on server
+     */
+    public function exportStore(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $filters = $request->only(['search', 'status', 'district_id']);
+        $format = $request->get('format', 'xlsx');
+
+        $filePath = 'exports/pinjaman/' . date('Y-m-d_H-i-s') . '_rekod-pinjaman.' . $format;
+
+        Excel::store(
+            new LoansExport($filters),
+            $filePath,
+            'local',
+            \Maatwebsite\Excel\Excel::XLSX
+        );
+
+        return redirect()->route('admin.loans.index')
+            ->with('success', "Fail berjaya disimpan: {$filePath}");
+    }
+
+    /**
+     * Queue export for large datasets
+     */
+    public function exportQueue(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $filters = $request->only(['search', 'status', 'district_id']);
+
+        Excel::queue(
+            new LoansExport($filters),
+            'exports/pinjaman/queued_' . date('Y-m-d_H-i-s') . '.xlsx',
+            'local',
+            \Maatwebsite\Excel\Excel::XLSX
+        );
+
+        return redirect()->route('admin.loans.index')
+            ->with('success', 'Eksport sedang diproses. Anda akan diberitahu setelah siap.');
+    }
+
+    /**
+     * Export and stream (for very large files)
+     */
+    public function exportStream(Request $request): BinaryFileResponse
+    {
+        $filters = $request->only(['search', 'status', 'district_id']);
+
+        return Excel::download(
+            new LoansExport($filters),
+            'rekod-pinjaman-stream.xlsx',
+            \Maatwebsite\Excel\Excel::XLSX
+        )->deleteFileAfterSend(true);
     }
 
     public function returnForm(Loan $loan)
