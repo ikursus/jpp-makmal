@@ -6,7 +6,7 @@
 <div class="login-page">
     <div class="login-card">
         <div class="logo-text">
-            <h2>🏛️ JPP Makmal</h2>
+            <img src="{{ asset('images/anton.jpeg') }}" alt="JPP Makmal" style="max-width: 140px; height: auto; display: block; margin: 0 auto 12px;">
             <h3>Sistem Pengurusan Barangan Makmal</h3>
         </div>
 

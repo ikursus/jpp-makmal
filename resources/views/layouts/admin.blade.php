@@ -4,7 +4,7 @@
 <div class="admin-layout">
     <div class="sidebar">
         <div class="logo">
-            <h2>🏛️ JPP Makmal</h2>
+            <img src="{{ asset('images/anton.jpeg') }}" alt="JPP Makmal" style="width: 100%; max-width: 120px; height: auto; display: block; margin: 0 auto;">
             <p>Sistem Pengurusan Barangan</p>
         </div>
         <nav>
