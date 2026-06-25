@@ -10,6 +10,7 @@
     <div class="export-buttons">
         <a href="{{ route('admin.reports.export', 'pdf') }}" class="btn btn-danger">📄 Eksport PDF</a>
         <a href="{{ route('admin.reports.export', 'excel') }}" class="btn btn-success">📊 Eksport Excel</a>
+        <button onclick="window.print()" class="btn btn-primary">🖨️ Cetak</button>
     </div>
 </div>
 
