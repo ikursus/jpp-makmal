@@ -198,10 +198,28 @@
             }
         })();
 
-        // Auto-dismiss toasts
-        setTimeout(function () {
-            document.querySelectorAll('.toast').forEach(function (el) { el.remove(); });
-        }, 5000);
+            // Auto-dismiss toasts
+            setTimeout(function () {
+                document.querySelectorAll('.toast').forEach(function (el) { el.remove(); });
+            }, 5000);
+
+            // User dropdown toggle
+            function toggleUserMenu() {
+                var menu = document.getElementById('user-menu');
+                if (menu) {
+                    menu.classList.toggle('show');
+                }
+            }
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function (e) {
+                var dropdown = document.querySelector('.user-dropdown');
+                var menu = document.getElementById('user-menu');
+                if (dropdown && !dropdown.contains(e.target)) {
+                    if (menu) {
+                        menu.classList.remove('show');
+                    }
+                }
+            });
     </script>
     @stack('scripts')
 </body>
