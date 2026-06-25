@@ -53,7 +53,7 @@
             </a>
             @endcan
             <hr style="border-color: rgba(255,255,255,0.1); margin: 16px 24px;">
-            <a href="{{ route('user.profile.edit') }}">
+            <a href="{{ route('admin.profile.edit') }}" class="{{ request()->routeIs('admin.profile*') ? 'active' : '' }}">
                 <span class="icon">👤</span> Profil
             </a>
             <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -70,6 +70,10 @@
             <div class="user-info">
                 <span>{{ auth()->user()->name }}</span>
                 <div class="avatar">{{ substr(auth()->user()->name, 0, 1) }}</div>
+                <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form-top').submit();" class="btn-logout" title="Log Keluar">
+                    🚪
+                </a>
+                <form id="logout-form-top" action="{{ route('logout') }}" method="POST" style="display:none;">@csrf</form>
             </div>
         </div>
         <div class="content">

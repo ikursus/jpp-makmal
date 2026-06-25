@@ -81,21 +81,60 @@
         .alert-danger, .alert-error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
         .alert-info { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
         .alert-warning { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
-        .pagination { display: flex; justify-content: center; gap: 6px; margin-top: 20px; flex-wrap: wrap; list-style: none; padding: 0; }
-        .pagination li { display: inline-flex; }
-        .pagination li.disabled span { opacity: 0.4; cursor: not-allowed; }
-        .pagination button, .pagination span { display: inline-flex; align-items: center; justify-content: center; min-width: 38px; height: 38px; padding: 0 12px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 500; transition: all 0.15s; border: none; cursor: pointer; }
-        .pagination button { background: white; border: 1px solid #d1d5db; color: #374151; }
-        .pagination button:hover { background: #f3f4f6; border-color: #9ca3af; }
-        .pagination li.active span { background: #003366; color: white; border: 1px solid #003366; box-shadow: 0 2px 6px rgba(0,51,102,0.25); }
-        .pagination li.disabled { opacity: 0.5; }
+        /* Pagination --------------------------------------------------------- */
+        .pagination { margin-top: 24px; }
+        .pagination nav { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+        .pagination .flex.justify-between { display: flex; width: 100%; align-items: center; justify-content: space-between; }
+        
+        /* Specific fixes for default Laravel Tailwind pagination */
+        .pagination nav span.relative, 
+        .pagination nav a.relative {
+            padding: 8px 14px;
+            background: white;
+            border: 1px solid #d1d5db;
+            color: #374151;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+        }
+
+        .pagination nav a.relative:hover {
+            background: #f3f4f6;
+            border-color: #9ca3af;
+        }
+
+        .pagination nav span.relative[aria-current="page"] span {
+            background: #003366;
+            color: white;
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pagination nav span.relative[aria-current="page"] {
+            background: #003366;
+            color: white;
+            border-color: #003366;
+            position: relative;
+        }
 
         /* Layout / sidebar --------------------------------------------------- */
-        .sidebar { width: 260px; background: #003366; color: white; min-height: 100vh; position: fixed; top: 0; left: 0; z-index: 50; transition: transform 0.25s ease; }
-        .sidebar .logo { padding: 24px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar { width: 260px; background: #003366; color: white; height: 100vh; position: fixed; top: 0; left: 0; z-index: 50; transition: transform 0.25s ease; display: flex; flex-direction: column; }
+        .sidebar .logo { padding: 24px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; }
         .sidebar .logo h2 { font-size: 16px; font-weight: 700; }
         .sidebar .logo p { font-size: 11px; opacity: 0.7; margin-top: 4px; }
-        .sidebar nav { padding: 16px 0; }
+        .sidebar nav { padding: 16px 0; flex: 1; overflow-y: auto; }
+        .sidebar nav::-webkit-scrollbar { width: 6px; }
+        .sidebar nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.25); border-radius: 3px; }
+        .sidebar nav::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
+        .sidebar nav { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.25) transparent; }
         .sidebar nav a { display: flex; align-items: center; gap: 12px; padding: 12px 24px; color: rgba(255,255,255,0.7); text-decoration: none; font-size: 14px; transition: all 0.2s; }
         .sidebar nav a:hover, .sidebar nav a.active { background: rgba(255,255,255,0.1); color: white; border-left: 3px solid #00a651; }
         .sidebar nav a .icon { font-size: 18px; width: 24px; text-align: center; }
