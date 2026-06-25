@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\Loans\LoansExport;
 use App\Http\Controllers\Controller;
 use App\Models\Item;
 use App\Models\ItemCondition;
 use App\Models\Loan;
 use App\Models\LoanApplication;
 use App\Models\LoanItem;
-use App\Exports\Loans\LoansExport;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
@@ -115,7 +116,6 @@ class AdminLoanController extends Controller
     public function loans()
     {
         return view('admin.loans.index');
-    }
     }
 
     /**
@@ -249,12 +249,12 @@ class AdminLoanController extends Controller
     /**
      * Store export file on server
      */
-    public function exportStore(Request $request): \Illuminate\Http\RedirectResponse
+    public function exportStore(Request $request): RedirectResponse
     {
         $filters = $request->only(['search', 'status', 'district_id']);
         $format = $request->get('format', 'xlsx');
 
-        $filePath = 'exports/pinjaman/' . date('Y-m-d_H-i-s') . '_rekod-pinjaman.' . $format;
+        $filePath = 'exports/pinjaman/'.date('Y-m-d_H-i-s').'_rekod-pinjaman.'.$format;
 
         Excel::store(
             new LoansExport($filters),
@@ -270,13 +270,13 @@ class AdminLoanController extends Controller
     /**
      * Queue export for large datasets
      */
-    public function exportQueue(Request $request): \Illuminate\Http\RedirectResponse
+    public function exportQueue(Request $request): RedirectResponse
     {
         $filters = $request->only(['search', 'status', 'district_id']);
 
         Excel::queue(
             new LoansExport($filters),
-            'exports/pinjaman/queued_' . date('Y-m-d_H-i-s') . '.xlsx',
+            'exports/pinjaman/queued_'.date('Y-m-d_H-i-s').'.xlsx',
             'local',
             \Maatwebsite\Excel\Excel::XLSX
         );
