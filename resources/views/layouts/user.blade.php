@@ -47,6 +47,10 @@
             <div class="user-info">
                 <span>{{ auth()->user()->name }} ({{ auth()->user()->district?->code ?? 'HQ' }})</span>
                 <div class="avatar">{{ substr(auth()->user()->name, 0, 1) }}</div>
+                <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form-top').submit();" class="btn-logout" title="Log Keluar">
+                    🚪
+                </a>
+                <form id="logout-form-top" action="{{ route('logout') }}" method="POST" style="display:none;">@csrf</form>
             </div>
         </div>
         <div class="content">
