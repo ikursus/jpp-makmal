@@ -125,6 +125,22 @@ Route::middleware(['auth', 'role:admin|super_admin'])->prefix('admin')->name('ad
     Route::put('/loan-applications/{loanApplication}/reject', [AdminLoanController::class, 'reject'])
         ->middleware('permission:approve-loan-applications')->name('loan-applications.reject');
 
+    // Loan export routes (all formats & options)
+    Route::prefix('loans/export')->name('loans.export.')->middleware('permission:export-data')->group(function () {
+        Route::get('/xlsx', [AdminLoanController::class, 'exportXlsx'])->name('xlsx');
+        Route::get('/csv', [AdminLoanController::class, 'exportCsv'])->name('csv');
+        Route::get('/ods', [AdminLoanController::class, 'exportOds'])->name('ods');
+        Route::get('/html', [AdminLoanController::class, 'exportHtml'])->name('html');
+        Route::get('/pdf', [AdminLoanController::class, 'exportPdf'])->name('pdf');
+        Route::get('/tcpdf', [AdminLoanController::class, 'exportTcpdf'])->name('tcpdf');
+        Route::get('/mpdf', [AdminLoanController::class, 'exportMpdf'])->name('mpdf');
+        Route::get('/view', [AdminLoanController::class, 'exportView'])->name('view');
+        Route::get('/multiple-sheets', [AdminLoanController::class, 'exportMultipleSheets'])->name('multiple-sheets');
+        Route::post('/store', [AdminLoanController::class, 'exportStore'])->name('store');
+        Route::post('/queue', [AdminLoanController::class, 'exportQueue'])->name('queue');
+        Route::get('/stream', [AdminLoanController::class, 'exportStream'])->name('stream');
+    });
+
     Route::get('/loans', [AdminLoanController::class, 'loans'])
         ->middleware('permission:manage-loan-applications')->name('loans.index');
     Route::get('/loans/{loan}/return', [AdminLoanController::class, 'returnForm'])

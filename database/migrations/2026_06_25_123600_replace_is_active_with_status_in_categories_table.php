@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -13,7 +14,7 @@ return new class extends Migration
         });
 
         // Migrate existing data: is_active=true -> dipinjam, is_active=false -> dikembalikan
-        \Illuminate\Support\Facades\DB::statement("UPDATE categories SET status = CASE WHEN is_active = 1 THEN 'dipinjam' ELSE 'dikembalikan' END");
+        DB::statement("UPDATE categories SET status = CASE WHEN is_active = 1 THEN 'dipinjam' ELSE 'dikembalikan' END");
 
         Schema::table('categories', function (Blueprint $table) {
             $table->dropColumn('is_active');
@@ -26,7 +27,7 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
         });
 
-        \Illuminate\Support\Facades\DB::statement("UPDATE categories SET is_active = CASE WHEN status = 'dikembalikan' THEN 0 ELSE 1 END");
+        DB::statement("UPDATE categories SET is_active = CASE WHEN status = 'dikembalikan' THEN 0 ELSE 1 END");
 
         Schema::table('categories', function (Blueprint $table) {
             $table->dropColumn('status');

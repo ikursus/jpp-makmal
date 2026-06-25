@@ -13,9 +13,13 @@ class AdminCategoryTable extends Component
     protected $paginationTheme = 'bootstrap';
 
     public string $search = '';
+
     public string $filterStatus = '';
+
     public string $sortField = 'created_at';
+
     public string $sortDirection = 'desc';
+
     public int $perPage = 10;
 
     protected $queryString = [
@@ -47,6 +51,7 @@ class AdminCategoryTable extends Component
 
         if ($category->items()->count() > 0) {
             session()->flash('error', 'Kategori tidak boleh dipadam kerana masih mempunyai barang.');
+
             return;
         }
 
@@ -72,8 +77,8 @@ class AdminCategoryTable extends Component
             ->withCount('items')
             ->when($this->search, function ($q) {
                 $q->where(function ($query) {
-                    $query->where('name', 'like', '%' . $this->search . '%')
-                        ->orWhere('description', 'like', '%' . $this->search . '%');
+                    $query->where('name', 'like', '%'.$this->search.'%')
+                        ->orWhere('description', 'like', '%'.$this->search.'%');
                 });
             })
             ->when($this->filterStatus !== '', function ($q) {
