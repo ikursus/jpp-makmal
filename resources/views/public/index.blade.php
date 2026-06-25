@@ -33,14 +33,4 @@
 
     <p style="margin-top: 60px; font-size: 12px; opacity: 0.5;">© <?php echo config('jpp-config.general.site_year') ?> <?php echo config('jpp-config.general.site_copyright'); ?></p>
 </div>
-
-@php
-
-    $welcome = '<script>alert("Selamat Datang");</script>'
-
-@endphp
-
-
-{{ $welcome }}
-
 @endsection
