@@ -1,0 +1,44 @@
+@extends('layouts.user')
+@section('title', 'Inventori')
+@section('user-content')
+<div class="page-header"><h1>Inventori Barang</h1></div>
+
+<div class="filter-bar">
+    <select id="category-filter" class="form-control" onchange="filterItems()">
+        <option value="">Semua Kategori</option>
+        @foreach($categories as $c)
+            <option value="{{ $c->id }}">{{ $c->name }}</option>
+        @endforeach
+    </select>
+</div>
+
+<div class="items-grid">
+    @foreach($items as $item)
+    <div class="item-card" data-category="{{ $item->category_id }}">
+        <div class="item-image">{{ $item->image ? '🖼️' : '📦' }}</div>
+        <h3>{{ $item->name }}</h3>
+        <p class="item-category">{{ $item->category->name ?? '-' }}</p>
+        <p class="item-stock">Stok: {{ $item->available_quantity }} / {{ $item->quantity }}</p>
+        <p class="item-location">📍 {{ $item->storageLocation->name ?? '-' }}</p>
+        @if($item->expiry_date)
+            <p class="item-expiry {{ $item->expiry_date <= now()->addDays(30) ? 'text-warning' : '' }}">
+                ⏰ Luput: {{ $item->expiry_date->format('d/m/Y') }}
+            </p>
+        @endif
+    </div>
+    @endforeach
+</div>
+
+@if($items->hasPages())
+<div class="pagination">{{ $items->links() }}</div>
+@endif
+
+<script>
+function filterItems() {
+    const cat = document.getElementById('category-filter').value;
+    document.querySelectorAll('.item-card').forEach(card => {
+        card.style.display = (!cat || card.dataset.category === cat) ? '' : 'none';
+    });
+}
+</script>
+@endsection
