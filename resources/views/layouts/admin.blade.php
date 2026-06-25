@@ -53,7 +53,7 @@
             </a>
             @endcan
             <hr style="border-color: rgba(255,255,255,0.1); margin: 16px 24px;">
-            <a href="{{ route('user.profile.edit') }}">
+            <a href="{{ route('admin.profile.edit') }}" class="{{ request()->routeIs('admin.profile*') ? 'active' : '' }}">
                 <span class="icon">👤</span> Profil
             </a>
             <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form-admin').submit();">
@@ -73,11 +73,12 @@
                     <div class="avatar">{{ substr(auth()->user()->name, 0, 1) }}</div>
                 </button>
                 <ul class="user-menu" id="user-menu">
-                    <li><a href="{{ route('user.profile.edit') }}">👤 Profil</a></li>
+                    <li><a href="{{ route('admin.profile.edit') }}">👤 Profil</a></li>
                     <li><a href="#" onclick="event.preventDefault(); document.getElementById('logout-form-admin').submit();">🚪 Log Keluar</a></li>
                 </ul>
             </div>
         </div>
+
         <div class="content">
             @yield('admin-content')
         </div>

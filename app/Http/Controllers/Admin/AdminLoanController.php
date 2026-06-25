@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\LoanApplication;
-use App\Models\Loan;
-use App\Models\LoanItem;
 use App\Models\Item;
 use App\Models\ItemCondition;
+use App\Models\Loan;
+use App\Models\LoanApplication;
+use App\Models\LoanItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -15,15 +15,13 @@ class AdminLoanController extends Controller
 {
     public function index()
     {
-        $applications = LoanApplication::with(['user', 'district', 'items.item'])
-            ->latest()
-            ->paginate(10);
-        return view('admin.loan-applications.index', compact('applications'));
+        return view('admin.loan-applications.index');
     }
 
     public function show(LoanApplication $loanApplication)
     {
         $loanApplication->load(['user', 'district', 'items.item', 'approvedBy']);
+
         return view('admin.loan-applications.show', compact('loanApplication'));
     }
 
@@ -55,7 +53,7 @@ class AdminLoanController extends Controller
                 ]);
 
                 $loan = Loan::create([
-                    'loan_no' => 'LN-' . now()->format('Ymd') . '-' . str_pad($loanApplication->id, 3, '0', STR_PAD_LEFT),
+                    'loan_no' => 'LN-'.now()->format('Ymd').'-'.str_pad($loanApplication->id, 3, '0', STR_PAD_LEFT),
                     'loan_application_id' => $loanApplication->id,
                     'user_id' => $loanApplication->user_id,
                     'district_id' => $loanApplication->district_id,
@@ -87,7 +85,7 @@ class AdminLoanController extends Controller
         }
 
         return redirect()->route('admin.loans.index')
-            ->with('success', 'Permohonan #' . $loanApplication->application_no . ' telah diluluskan.');
+            ->with('success', 'Permohonan #'.$loanApplication->application_no.' telah diluluskan.');
     }
 
     public function reject(Request $request, LoanApplication $loanApplication)
@@ -108,7 +106,7 @@ class AdminLoanController extends Controller
         ]);
 
         return redirect()->route('admin.loan-applications.index')
-            ->with('success', 'Permohonan #' . $loanApplication->application_no . ' telah ditolak.');
+            ->with('success', 'Permohonan #'.$loanApplication->application_no.' telah ditolak.');
     }
 
     public function loans()
@@ -116,6 +114,7 @@ class AdminLoanController extends Controller
         $loans = Loan::with(['user', 'district', 'items.item'])
             ->latest()
             ->paginate(10);
+
         return view('admin.loans.index', compact('loans'));
     }
 
@@ -127,6 +126,7 @@ class AdminLoanController extends Controller
         }
 
         $loan->load(['user', 'district', 'items.item']);
+
         return view('admin.loans.return', compact('loan'));
     }
 
@@ -151,7 +151,7 @@ class AdminLoanController extends Controller
 
                 foreach ($loan->items as $loanItem) {
                     $input = $validated['returns'][$loanItem->id] ?? null;
-                    if (!$input) {
+                    if (! $input) {
                         continue;
                     }
 

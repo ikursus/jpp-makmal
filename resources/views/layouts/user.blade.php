@@ -55,6 +55,7 @@
                 </ul>
             </div>
         </div>
+
         <div class="content">
             @yield('user-content')
         </div>

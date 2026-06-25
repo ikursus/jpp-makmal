@@ -10,8 +10,7 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        $categories = Category::latest()->paginate(10);
-        return view('admin.categories.index', compact('categories'));
+        return view('admin.categories.index');
     }
 
     public function create()
@@ -24,7 +23,7 @@ class CategoryController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:100',
             'description' => 'nullable|string',
-            'is_active' => 'boolean',
+            'status' => 'required|in:dipinjam,dalam_proses_permohonan,dikembalikan',
         ]);
 
         Category::create($validated);
@@ -43,7 +42,7 @@ class CategoryController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:100',
             'description' => 'nullable|string',
-            'is_active' => 'boolean',
+            'status' => 'required|in:dipinjam,dalam_proses_permohonan,dikembalikan',
         ]);
 
         $category->update($validated);

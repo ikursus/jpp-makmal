@@ -102,6 +102,11 @@
                 <button wire:click="resetFilters" class="btn btn-secondary" style="height: 42px; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 0 16px;">
                     <span>⟳</span> Set Semula
                 </button>
+
+                <!-- Butang Cetak -->
+                <button onclick="window.print()" class="btn btn-primary" style="height: 42px; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 0 16px;">
+                    <span>🖨️</span> Cetak
+                </button>
             </div>
         </div>
     </div>
