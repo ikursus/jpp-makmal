@@ -6,7 +6,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Sistem Pengurusan Barangan Makmal JPP')</title>
     @livewireStyles
-    @vite('resources/css/app.css')
+    @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
+        @vite('resources/css/app.css')
+    @endif
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f3f4f6; color: #1f2937; }
@@ -130,14 +132,6 @@
         .export-buttons { display: flex; gap: 8px; }
         .toast { position: fixed; top: 20px; right: 20px; z-index: 1000; animation: slideIn 0.3s ease; }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        .landing { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #003366 0%, #004d80 100%); color: white; text-align: center; padding: 40px; }
-        .landing h1 { font-size: 36px; margin-bottom: 16px; }
-        .landing p { font-size: 18px; opacity: 0.9; margin-bottom: 32px; max-width: 600px; }
-        .landing .features { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-top: 40px; max-width: 800px; }
-        .landing .feature { background: rgba(255,255,255,0.1); padding: 24px; border-radius: 12px; }
-        .landing .feature .icon { font-size: 32px; margin-bottom: 8px; }
-        .landing .feature h3 { font-size: 16px; margin-bottom: 4px; }
-        .landing .feature p { font-size: 13px; opacity: 0.7; }
         .login-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #003366 0%, #004d80 100%); }
         .login-card { background: white; padding: 40px; border-radius: 16px; width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
         .login-card h2 { text-align: center; color: #003366; margin-bottom: 24px; font-size: 24px; }
@@ -155,11 +149,11 @@
             body.sidebar-open .sidebar-overlay { display: block; }
             body.sidebar-collapsed .sidebar { transform: translateX(-100%); }
             .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
-            .landing .features { grid-template-columns: repeat(2, 1fr); }
             .content { padding: 16px; }
             .topbar { padding: 12px 16px; }
         }
     </style>
+    @stack('styles')
 </head>
 <body>
     @yield('content')
@@ -209,5 +203,6 @@
             document.querySelectorAll('.toast').forEach(function (el) { el.remove(); });
         }, 5000);
     </script>
+    @stack('scripts')
 </body>
 </html>
