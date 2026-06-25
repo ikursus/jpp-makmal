@@ -10,8 +10,7 @@ class StorageLocationController extends Controller
 {
     public function index()
     {
-        $locations = StorageLocation::latest()->paginate(10);
-        return view('admin.storage-locations.index', compact('locations'));
+        return view('admin.storage-locations.index');
     }
 
     public function create()
@@ -43,7 +42,7 @@ class StorageLocationController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:100',
-            'code' => 'required|string|max:20|unique:storage_locations,code,' . $storageLocation->id,
+            'code' => 'required|string|max:20|unique:storage_locations,code,'.$storageLocation->id,
             'description' => 'nullable|string',
             'is_active' => 'boolean',
         ]);
