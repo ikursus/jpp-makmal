@@ -157,4 +157,23 @@ class LoanApplicationApiTest extends TestCase
         $this->getJson('/api/v1/loan-applications')->assertStatus(401);
         $this->getJson('/api/v1/loan-applications/1')->assertStatus(401);
     }
+
+    public function test_submission_rejects_duplicate_items(): void
+    {
+        $user = $this->userWithDistrict();
+        Sanctum::actingAs($user);
+        $item = Item::factory()->create(['available_quantity' => 10]);
+
+        $this->postJson('/api/v1/loan-applications', [
+            'items' => [
+                ['item_id' => $item->id, 'quantity' => 3],
+                ['item_id' => $item->id, 'quantity' => 3],
+            ],
+            'start_date' => now()->addDay()->toDateString(),
+            'end_date' => now()->addDays(3)->toDateString(),
+            'purpose' => 'Untuk program makmal sekolah',
+        ])->assertStatus(422)->assertJsonValidationErrors('items.0.item_id');
+
+        $this->assertDatabaseCount('loan_applications', 0);
+    }
 }

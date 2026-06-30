@@ -15,7 +15,7 @@ class StoreLoanApplicationRequest extends FormRequest
     {
         return [
             'items' => 'required|array|min:1',
-            'items.*.item_id' => 'required|integer|exists:items,id',
+            'items.*.item_id' => 'required|integer|exists:items,id|distinct',
             'items.*.quantity' => 'required|integer|min:1',
             'start_date' => 'required|date|after_or_equal:today',
             'end_date' => 'required|date|after_or_equal:start_date',
