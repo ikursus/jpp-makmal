@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Actions\CreateLoanApplication;
+use App\Exceptions\InsufficientStockException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreLoanApplicationRequest;
 use App\Models\Item;
 use App\Models\LoanApplication;
-use App\Models\LoanApplicationItem;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -36,39 +38,24 @@ class UserLoanApplicationController extends Controller
         return view('user.loan-application.create', compact('items', 'preselectId'));
     }
 
-    public function store(StoreLoanApplicationRequest $request)
+    public function store(StoreLoanApplicationRequest $request, CreateLoanApplication $action): RedirectResponse
     {
-        $validated = $request->validated();
-        $validated['items'] = $request->getSelectedItems();
-
-        $user = Auth::user();
-
-        // Re-check stock at submit time.
-        foreach ($validated['items'] as $itemData) {
-            $item = Item::findOrFail($itemData['id']);
-            if ($item->available_quantity < $itemData['quantity']) {
-                return back()
-                    ->with('error', "Stok {$item->name} tidak mencukupi. Tersedia: {$item->available_quantity}")
-                    ->withInput();
-            }
+        if ($request->user()->district_id === null) {
+            return back()
+                ->with('error', 'Akaun anda tiada daerah berdaftar. Sila hubungi pentadbir.')
+                ->withInput();
         }
 
-        $application = LoanApplication::create([
-            'application_no' => 'LA-' . now()->format('Ymd') . '-' . str_pad(LoanApplication::max('id') + 1, 3, '0', STR_PAD_LEFT),
-            'user_id' => $user->id,
-            'district_id' => $user->district_id,
-            'start_date' => $validated['start_date'],
-            'end_date' => $validated['end_date'],
-            'purpose' => $validated['purpose'],
-            'status' => 'menunggu',
-        ]);
-
-        foreach ($validated['items'] as $itemData) {
-            LoanApplicationItem::create([
-                'loan_application_id' => $application->id,
-                'item_id' => $itemData['id'],
-                'quantity_requested' => $itemData['quantity'],
-            ]);
+        try {
+            $application = $action->handle(
+                Auth::user(),
+                $request->getSelectedItems(),
+                $request->validated('start_date'),
+                $request->validated('end_date'),
+                $request->validated('purpose'),
+            );
+        } catch (InsufficientStockException $e) {
+            return back()->with('error', $e->getMessage())->withInput();
         }
 
         return redirect()->route('user.loan-applications.show', $application->id)
@@ -80,6 +67,7 @@ class UserLoanApplicationController extends Controller
         $application = LoanApplication::with(['items.item', 'district'])
             ->where('user_id', Auth::id())
             ->findOrFail($id);
+
         return view('user.loan-application.show', compact('application'));
     }
 }
