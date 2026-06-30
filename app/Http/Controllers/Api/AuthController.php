@@ -38,4 +38,19 @@ class AuthController extends Controller
             'user' => new UserResource($user->load('district')),
         ]);
     }
+
+    public function logout(Request $request): JsonResponse
+    {
+        $request->user()->currentAccessToken()->delete();
+        auth()->forgetGuards();
+
+        return response()->json(['message' => 'Berjaya log keluar.']);
+    }
+
+    public function me(Request $request): JsonResponse
+    {
+        return response()->json([
+            'user' => new UserResource($request->user()->load('district')),
+        ]);
+    }
 }

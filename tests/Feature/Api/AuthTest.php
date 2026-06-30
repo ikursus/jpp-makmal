@@ -61,4 +61,23 @@ class AuthTest extends TestCase
         $this->postJson('/api/v1/login', ['email' => 'ali@example.com', 'password' => 'password'])
             ->assertStatus(429);
     }
+
+    public function test_me_returns_authenticated_user(): void
+    {
+        $user = User::factory()->create();
+        $token = $user->createToken('test')->plainTextToken;
+
+        $this->withToken($token)->getJson('/api/v1/user')
+            ->assertOk()
+            ->assertJsonPath('user.id', $user->id);
+    }
+
+    public function test_logout_revokes_current_token(): void
+    {
+        $user = User::factory()->create();
+        $token = $user->createToken('test')->plainTextToken;
+
+        $this->withToken($token)->postJson('/api/v1/logout')->assertOk();
+        $this->withToken($token)->getJson('/api/v1/user')->assertStatus(401);
+    }
 }
