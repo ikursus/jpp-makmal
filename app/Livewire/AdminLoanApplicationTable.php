@@ -70,7 +70,7 @@ class AdminLoanApplicationTable extends Component
     #[Computed]
     public function categories()
     {
-        return Category::where('is_active', true)->orderBy('name')->get();
+        return Category::orderBy('name')->get();
     }
 
     public function getApplicationsProperty()
