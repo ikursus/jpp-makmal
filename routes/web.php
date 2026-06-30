@@ -19,7 +19,15 @@ use Illuminate\Support\Facades\Route;
 
 // ========== PUBLIC ROUTES ==========
 Route::get('/', PublicController::class)->name('home');
-Route::get('/api-docs', fn () => response()->file(public_path('api-docs.html')))->name('api.docs');
+Route::get('/api-docs', function () {
+    $html = str_replace(
+        '__APP_URL__',
+        rtrim(config('app.url'), '/'),
+        file_get_contents(resource_path('api-docs.html')),
+    );
+
+    return response($html);
+})->name('api.docs');
 Route::get('/login', [AuthController::class, 'loginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

@@ -398,8 +398,8 @@
 
     <div class="baseurl">
       <span class="label">Base URL</span>
-      <span class="url" id="baseurl"><span class="accent">http://jpp-makmal.test</span>/api/v1</span>
-      <button class="copybtn" data-copy="http://jpp-makmal.test/api/v1">SALIN</button>
+      <span class="url" id="baseurl"><span class="accent">__APP_URL__</span>/api/v1</span>
+      <button class="copybtn" data-copy="__APP_URL__/api/v1">SALIN</button>
     </div>
 
     <div class="hero-meta">
@@ -443,7 +443,7 @@
           <span class="tag"><b>Token-per-peranti</b></span>
           <span class="tag"><b>422</b> envelope konsisten</span>
         </div>
-        <div class="callout">Ganti <b>http://jpp-makmal.test</b> dengan host pelayan anda. Sertakan header <code>Accept: application/json</code> pada setiap permintaan supaya ralat dipulangkan dalam bentuk JSON.</div>
+        <div class="callout">Ganti <b>__APP_URL__</b> dengan host pelayan anda. Sertakan header <code>Accept: application/json</code> pada setiap permintaan supaya ralat dipulangkan dalam bentuk JSON.</div>
       </section>
 
       <!-- AUTH -->
@@ -457,7 +457,7 @@
           <li>Lampirkan pada setiap permintaan: header <code>Authorization: Bearer &lt;token&gt;</code>.</li>
           <li><b>POST /logout</b> membatalkan token peranti semasa sahaja.</li>
         </ol>
-        <pre><span class="pre-label">curl</span><button class="pcopy" data-copy='curl -X POST http://jpp-makmal.test/api/v1/login -H "Accept: application/json" -H "Content-Type: application/json" -d {"email":"zarinabinahmad@jpp.gov.my","password":"password","device_name":"flutter"}'>copy</button><code><span class="t-kw">curl</span> -X POST http://jpp-makmal.test/api/v1/login \
+        <pre><span class="pre-label">curl</span><button class="pcopy" data-copy='curl -X POST __APP_URL__/api/v1/login -H "Accept: application/json" -H "Content-Type: application/json" -d {"email":"zarinabinahmad@jpp.gov.my","password":"password","device_name":"flutter"}'>copy</button><code><span class="t-kw">curl</span> -X POST __APP_URL__/api/v1/login \
   -H <span class="t-str">"Accept: application/json"</span> \
   -H <span class="t-str">"Content-Type: application/json"</span> \
   -d <span class="t-str">'{"email":"zarinabinahmad@jpp.gov.my","password":"password","device_name":"flutter"}'</span></code></pre>
@@ -615,7 +615,7 @@
 <span class="t-kw">class</span> ApiClient {
   ApiClient() {
     dio = Dio(BaseOptions(
-      baseUrl: <span class="t-str">'http://jpp-makmal.test/api/v1'</span>,
+      baseUrl: <span class="t-str">'__APP_URL__/api/v1'</span>,
       headers: {<span class="t-str">'Accept'</span>: <span class="t-str">'application/json'</span>},
     ));
 
