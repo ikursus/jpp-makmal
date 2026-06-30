@@ -1,24 +1,25 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\PublicController;
-use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\AdminDashboardController;
-use App\Http\Controllers\Admin\DistrictController;
+use App\Http\Controllers\Admin\AdminLoanController;
+use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\DistrictController;
 use App\Http\Controllers\Admin\ItemController;
 use App\Http\Controllers\Admin\StorageLocationController;
 use App\Http\Controllers\Admin\UserManagementController;
-use App\Http\Controllers\Admin\AdminLoanController;
-use App\Http\Controllers\Admin\AdminProfileController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PublicController;
 use App\Http\Controllers\User\UserDashboardController;
 use App\Http\Controllers\User\UserInventoryController;
 use App\Http\Controllers\User\UserLoanApplicationController;
 use App\Http\Controllers\User\UserLoanController;
 use App\Http\Controllers\User\UserProfileController;
+use Illuminate\Support\Facades\Route;
 
 // ========== PUBLIC ROUTES ==========
 Route::get('/', PublicController::class)->name('home');
+Route::get('/api-docs', fn () => response()->file(public_path('api-docs.html')))->name('api.docs');
 Route::get('/login', [AuthController::class, 'loginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -29,31 +30,31 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::middleware(['auth', 'role:user'])
     ->prefix('user')->name('user.')->group(function () {
 
-    Route::get('/dashboard', [UserDashboardController::class, 'index'])
-        ->name('dashboard');
+        Route::get('/dashboard', [UserDashboardController::class, 'index'])
+            ->name('dashboard');
 
-    Route::get('/inventory', [UserInventoryController::class, 'index'])
-        ->middleware('permission:view-inventory')->name('inventory');
+        Route::get('/inventory', [UserInventoryController::class, 'index'])
+            ->middleware('permission:view-inventory')->name('inventory');
 
-    Route::get('/loan-applications', [UserLoanApplicationController::class, 'index'])
-        ->middleware('permission:view-own-applications')->name('loan-applications.index');
-    Route::get('/loan-applications/create', [UserLoanApplicationController::class, 'create'])
-        ->middleware('permission:create-loan-application')->name('loan-applications.create');
-    Route::post('/loan-applications', [UserLoanApplicationController::class, 'store'])
-        ->middleware('permission:create-loan-application')->name('loan-applications.store');
-    Route::get('/loan-applications/{id}', [UserLoanApplicationController::class, 'show'])
-        ->middleware('permission:view-own-applications')->name('loan-applications.show');
+        Route::get('/loan-applications', [UserLoanApplicationController::class, 'index'])
+            ->middleware('permission:view-own-applications')->name('loan-applications.index');
+        Route::get('/loan-applications/create', [UserLoanApplicationController::class, 'create'])
+            ->middleware('permission:create-loan-application')->name('loan-applications.create');
+        Route::post('/loan-applications', [UserLoanApplicationController::class, 'store'])
+            ->middleware('permission:create-loan-application')->name('loan-applications.store');
+        Route::get('/loan-applications/{id}', [UserLoanApplicationController::class, 'show'])
+            ->middleware('permission:view-own-applications')->name('loan-applications.show');
 
-    // Pinjaman & rekod pemulangan (read-only, milik user sahaja)
-    Route::get('/loans', [UserLoanController::class, 'index'])
-        ->middleware('permission:view-own-applications')->name('loans.index');
-    Route::get('/loans/{id}', [UserLoanController::class, 'show'])
-        ->middleware('permission:view-own-applications')->name('loans.show');
+        // Pinjaman & rekod pemulangan (read-only, milik user sahaja)
+        Route::get('/loans', [UserLoanController::class, 'index'])
+            ->middleware('permission:view-own-applications')->name('loans.index');
+        Route::get('/loans/{id}', [UserLoanController::class, 'show'])
+            ->middleware('permission:view-own-applications')->name('loans.show');
 
-    Route::get('/profile', [UserProfileController::class, 'edit'])->name('profile.edit');
-    Route::put('/profile', [UserProfileController::class, 'update'])->name('profile.update');
-    Route::get('/profile/pdf', [UserProfileController::class, 'downloadPdf'])->name('profile.pdf');
-});
+        Route::get('/profile', [UserProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('/profile', [UserProfileController::class, 'update'])->name('profile.update');
+        Route::get('/profile/pdf', [UserProfileController::class, 'downloadPdf'])->name('profile.pdf');
+    });
 
 // ========== ADMIN ROUTES (HQ) ==========
 // Restricted to admin roles so the `user` role can never reach the admin panel,
