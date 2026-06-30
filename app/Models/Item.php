@@ -2,14 +2,17 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Item extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'name', 'description', 'quantity', 'available_quantity',
         'condition', 'status', 'category_id', 'storage_location_id',
-        'expiry_date', 'image', 'qr_code', 'is_active'
+        'expiry_date', 'image', 'qr_code', 'is_active',
     ];
 
     protected function casts(): array
