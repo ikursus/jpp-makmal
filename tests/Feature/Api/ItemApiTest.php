@@ -53,4 +53,12 @@ class ItemApiTest extends TestCase
     {
         $this->getJson('/api/v1/items')->assertStatus(401);
     }
+
+    public function test_cannot_show_an_unavailable_item(): void
+    {
+        Sanctum::actingAs(User::factory()->create());
+        $hidden = Item::factory()->create(['status' => 'dipinjam', 'available_quantity' => 0]);
+
+        $this->getJson("/api/v1/items/{$hidden->id}")->assertStatus(404);
+    }
 }

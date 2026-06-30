@@ -24,8 +24,15 @@ class ItemController extends Controller
         return ItemResource::collection($items);
     }
 
-    public function show(Item $item)
+    public function show(string $id)
     {
-        return new ItemResource($item->load('category'));
+        $item = Item::query()
+            ->with('category')
+            ->where('is_active', true)
+            ->where('status', 'tersedia')
+            ->where('available_quantity', '>', 0)
+            ->findOrFail($id);
+
+        return new ItemResource($item);
     }
 }
