@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>JPP Makmal — API Pengguna · Dokumentasi & Integrasi Flutter</title>
+<meta name="description" content="Dokumentasi API token (Sanctum) JPP Makmal untuk aplikasi Flutter: log masuk, katalog item, dan permohonan pinjaman." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Hanken+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0a0d11;
+    --bg-2: #0e1318;
+    --surface: #121922;
+    --surface-2: #18212c;
+    --border: #222d39;
+    --border-bright: #324356;
+    --text: #e9eef4;
+    --muted: #8a97a6;
+    --faint: #5b6878;
+    --accent: #c4f23d;
+    --accent-soft: rgba(196, 242, 61, .12);
+    --get: #22d3ee;
+    --get-soft: rgba(34, 211, 238, .12);
+    --post: #f59e0b;
+    --post-soft: rgba(245, 158, 11, .12);
+    --danger: #fb7185;
+    --display: "Syne", sans-serif;
+    --body: "Hanken Grotesk", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, monospace;
+    --maxw: 1180px;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 32px; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* layered atmospheric background */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background:
+      radial-gradient(900px 600px at 88% -8%, rgba(196, 242, 61, .10), transparent 60%),
+      radial-gradient(800px 600px at -6% 8%, rgba(34, 211, 238, .07), transparent 55%),
+      linear-gradient(180deg, var(--bg-2), var(--bg) 40%);
+  }
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 56px 56px;
+    opacity: .15;
+    mask-image: radial-gradient(circle at 50% 30%, #000 0%, transparent 78%);
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  .wrap {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 0 28px;
+  }
+
+  /* ===== Top bar ===== */
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    backdrop-filter: blur(14px);
+    background: rgba(10, 13, 17, .72);
+    border-bottom: 1px solid var(--border);
+  }
+  .topbar .row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--display);
+    font-weight: 800;
+    letter-spacing: -.02em;
+    font-size: 18px;
+  }
+  .brand .mark {
+    width: 30px; height: 30px;
+    display: grid; place-items: center;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    border-radius: 8px;
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 13px;
+    box-shadow: 0 0 24px -6px var(--accent);
+  }
+  .brand small {
+    font-family: var(--mono);
+    font-weight: 400;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  .pill-status {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--mono); font-size: 12px; color: var(--muted);
+    padding: 6px 12px; border: 1px solid var(--border); border-radius: 999px;
+    background: var(--surface);
+  }
+  .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 0 var(--accent);
+    animation: pulse 2.2s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(196,242,61,.5); }
+    70% { box-shadow: 0 0 0 7px rgba(196,242,61,0); }
+    100% { box-shadow: 0 0 0 0 rgba(196,242,61,0); }
+  }
+
+  /* ===== Hero ===== */
+  .hero { padding: 86px 0 64px; position: relative; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 22px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .eyebrow::before { content: ""; width: 40px; height: 1px; background: var(--accent); }
+  .hero h1 {
+    font-family: var(--display);
+    font-weight: 800;
+    letter-spacing: -.035em;
+    font-size: clamp(40px, 7vw, 76px);
+    line-height: .98;
+    margin: 0 0 24px;
+  }
+  .hero h1 .accent { color: var(--accent); }
+  .hero p.lede {
+    max-width: 620px;
+    font-size: 19px;
+    color: var(--muted);
+    margin: 0 0 36px;
+  }
+  .hero p.lede b { color: var(--text); font-weight: 600; }
+
+  .baseurl {
+    display: inline-flex; align-items: stretch;
+    border: 1px solid var(--border-bright);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--surface);
+    font-family: var(--mono);
+    box-shadow: 0 24px 60px -30px rgba(0,0,0,.8);
+  }
+  .baseurl .label {
+    padding: 14px 16px;
+    background: var(--surface-2);
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    border-right: 1px solid var(--border);
+    display: flex; align-items: center;
+  }
+  .baseurl .url { padding: 14px 18px; font-size: 14.5px; color: var(--text); display: flex; align-items: center; }
+  .baseurl .url .accent { color: var(--accent); }
+  .copybtn {
+    border: none; background: transparent; color: var(--muted);
+    padding: 0 16px; cursor: pointer; font-family: var(--mono); font-size: 12px;
+    border-left: 1px solid var(--border); transition: color .15s, background .15s;
+    letter-spacing: .05em;
+  }
+  .copybtn:hover { color: var(--accent); background: var(--accent-soft); }
+
+  .hero-meta {
+    margin-top: 40px;
+    display: flex; flex-wrap: wrap; gap: 28px;
+  }
+  .hero-meta .m { display: flex; flex-direction: column; gap: 4px; }
+  .hero-meta .m span { font-family: var(--mono); font-size: 12px; color: var(--faint); letter-spacing: .08em; text-transform: uppercase; }
+  .hero-meta .m strong { font-family: var(--display); font-size: 22px; font-weight: 700; letter-spacing: -.02em; }
+
+  /* ===== Layout ===== */
+  .layout {
+    display: grid;
+    grid-template-columns: 232px 1fr;
+    gap: 56px;
+    padding: 40px 0 120px;
+    align-items: start;
+  }
+  nav.side {
+    position: sticky;
+    top: 96px;
+    font-size: 14px;
+  }
+  nav.side .group { margin-bottom: 26px; }
+  nav.side .group > p {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin: 0 0 10px;
+  }
+  nav.side a {
+    display: block;
+    color: var(--muted);
+    padding: 6px 12px;
+    border-left: 2px solid var(--border);
+    transition: color .15s, border-color .15s, background .15s;
+    border-radius: 0 6px 6px 0;
+  }
+  nav.side a:hover { color: var(--text); background: var(--surface); }
+  nav.side a.active { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+
+  main { min-width: 0; }
+
+  section.block { margin-bottom: 72px; scroll-margin-top: 90px; }
+  section.block > .kicker {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent);
+    letter-spacing: .14em;
+    margin-bottom: 12px;
+  }
+  section.block > h2 {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(26px, 4vw, 36px);
+    letter-spacing: -.025em;
+    margin: 0 0 16px;
+  }
+  section.block > p { color: var(--muted); max-width: 640px; }
+  section.block > p b { color: var(--text); font-weight: 600; }
+
+  /* ===== Cards / endpoints ===== */
+  .card {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: linear-gradient(180deg, var(--surface), var(--bg-2));
+    padding: 22px 24px;
+    margin-top: 18px;
+    position: relative;
+  }
+  .card::before, .card::after {
+    content: ""; position: absolute; width: 10px; height: 10px;
+    border-color: var(--border-bright); border-style: solid;
+  }
+  .card::before { top: -1px; left: -1px; border-width: 1px 0 0 1px; border-top-left-radius: 14px; }
+  .card::after { bottom: -1px; right: -1px; border-width: 0 1px 1px 0; border-bottom-right-radius: 14px; }
+
+  .ep-head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .method {
+    font-family: var(--mono); font-weight: 700; font-size: 12.5px;
+    letter-spacing: .08em; padding: 5px 11px; border-radius: 7px;
+  }
+  .method.get { color: var(--get); background: var(--get-soft); border: 1px solid rgba(34,211,238,.3); }
+  .method.post { color: var(--post); background: var(--post-soft); border: 1px solid rgba(245,158,11,.3); }
+  .path { font-family: var(--mono); font-size: 15px; color: var(--text); }
+  .path .dim { color: var(--faint); }
+  .lock {
+    margin-left: auto; font-family: var(--mono); font-size: 11px; color: var(--muted);
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border: 1px solid var(--border); border-radius: 999px;
+  }
+  .lock.open { color: var(--accent); border-color: rgba(196,242,61,.35); }
+  .ep-desc { color: var(--muted); margin: 14px 0 0; font-size: 15px; }
+
+  pre {
+    margin: 16px 0 0;
+    background: #070a0d;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    position: relative;
+  }
+  pre code { font-family: var(--mono); font-size: 13px; line-height: 1.7; color: #cdd7e2; }
+  pre .pre-label {
+    position: absolute; top: 0; right: 0;
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--faint); padding: 5px 12px; border-left: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    border-bottom-left-radius: 8px;
+  }
+  pre .pcopy {
+    position: absolute; top: 6px; right: 10px; opacity: 0;
+    background: var(--surface-2); color: var(--muted); border: 1px solid var(--border);
+    font-family: var(--mono); font-size: 11px; padding: 3px 9px; border-radius: 6px; cursor: pointer;
+    transition: opacity .15s, color .15s;
+  }
+  pre:hover .pcopy { opacity: 1; }
+  pre .pcopy:hover { color: var(--accent); }
+
+  /* token syntax tints */
+  .t-key { color: var(--accent); }
+  .t-str { color: #9fe6a0; }
+  .t-num { color: #f0a868; }
+  .t-com { color: var(--faint); font-style: italic; }
+  .t-kw { color: var(--get); }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 760px) { .grid2 { grid-template-columns: 1fr; } }
+
+  /* tables */
+  table { width: 100%; border-collapse: collapse; margin-top: 18px; font-size: 14.5px; }
+  th, td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { font-family: var(--mono); font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); font-weight: 500; }
+  td code, p code, li code { font-family: var(--mono); font-size: 13px; background: var(--surface-2); padding: 2px 7px; border-radius: 5px; color: var(--accent); }
+  .badge-code { font-family: var(--mono); font-weight: 700; }
+  .c422 { color: var(--post); } .c401 { color: var(--get); } .c403 { color: var(--danger); } .c404 { color: var(--muted); } .c429 { color: var(--danger); } .c2xx { color: var(--accent); }
+
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+  .tag { font-family: var(--mono); font-size: 12.5px; padding: 6px 12px; border: 1px solid var(--border); border-radius: 999px; color: var(--muted); background: var(--surface); }
+  .tag b { color: var(--accent); font-weight: 700; }
+
+  .callout {
+    margin-top: 18px; border: 1px solid var(--border-bright); border-left: 3px solid var(--accent);
+    background: var(--accent-soft); border-radius: 0 10px 10px 0; padding: 14px 18px; color: var(--text); font-size: 14.5px;
+  }
+  .callout b { color: var(--accent); }
+
+  .steps { counter-reset: s; margin-top: 18px; padding: 0; list-style: none; }
+  .steps li { position: relative; padding: 4px 0 18px 44px; color: var(--muted); }
+  .steps li b { color: var(--text); }
+  .steps li::before {
+    counter-increment: s; content: counter(s, decimal-leading-zero);
+    position: absolute; left: 0; top: 2px; font-family: var(--mono); font-size: 13px; font-weight: 700;
+    color: var(--accent); border: 1px solid var(--border); border-radius: 7px; width: 30px; height: 30px;
+    display: grid; place-items: center; background: var(--surface);
+  }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 40px 0 60px;
+    color: var(--faint);
+    font-family: var(--mono);
+    font-size: 13px;
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+  }
+  footer .accent { color: var(--accent); }
+
+  /* reveal */
+  .reveal { opacity: 0; transform: translateY(14px); animation: rise .7s cubic-bezier(.2,.7,.2,1) forwards; }
+  @keyframes rise { to { opacity: 1; transform: none; } }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; gap: 24px; }
+    nav.side { position: static; top: auto; border: 1px solid var(--border); border-radius: 12px; padding: 16px; background: var(--surface); }
+    nav.side .group { margin-bottom: 16px; }
+    .hero { padding: 56px 0 40px; }
+    footer { flex-direction: column; }
+  }
+  .nowrap { white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap row">
+    <div class="brand">
+      <span class="mark">API</span>
+      <div>JPP Makmal<br><small>API Pengguna · v1</small></div>
+    </div>
+    <span class="pill-status"><span class="dot"></span> Dokumentasi Awam</span>
+  </div>
+</header>
+
+<div class="wrap">
+  <section class="hero reveal">
+    <p class="eyebrow">Rujukan API &amp; Integrasi Flutter</p>
+    <h1>API <span class="accent">Pinjaman</span><br>Peralatan Makmal</h1>
+    <p class="lede">API JSON berasaskan token (<b>Laravel Sanctum</b>) untuk aplikasi Flutter pengguna — <b>log masuk</b>, semak <b>katalog item</b>, hantar <b>permohonan pinjaman</b>, dan jejak statusnya.</p>
+
+    <div class="baseurl">
+      <span class="label">Base URL</span>
+      <span class="url" id="baseurl"><span class="accent">http://jpp-makmal.test</span>/api/v1</span>
+      <button class="copybtn" data-copy="http://jpp-makmal.test/api/v1">SALIN</button>
+    </div>
+
+    <div class="hero-meta">
+      <div class="m"><span>Endpoint</span><strong>8</strong></div>
+      <div class="m"><span>Auth</span><strong>Bearer</strong></div>
+      <div class="m"><span>Format</span><strong>JSON</strong></div>
+      <div class="m"><span>Versi</span><strong>v1</strong></div>
+    </div>
+  </section>
+
+  <div class="layout">
+    <nav class="side" id="sidenav">
+      <div class="group">
+        <p>Mula</p>
+        <a href="#overview">Gambaran Keseluruhan</a>
+        <a href="#auth">Pengesahan</a>
+      </div>
+      <div class="group">
+        <p>Endpoint</p>
+        <a href="#ep-auth">Akaun &amp; Token</a>
+        <a href="#ep-items">Katalog Item</a>
+        <a href="#ep-loans">Permohonan</a>
+      </div>
+      <div class="group">
+        <p>Integrasi</p>
+        <a href="#flutter">Flutter (Dart)</a>
+        <a href="#errors">Pengendalian Ralat</a>
+        <a href="#status">Nilai Status</a>
+      </div>
+    </nav>
+
+    <main>
+      <!-- OVERVIEW -->
+      <section class="block" id="overview">
+        <div class="kicker">01 — Pengenalan</div>
+        <h2>Gambaran Keseluruhan</h2>
+        <p>Semua endpoint berada di bawah awalan <code>/api/v1</code> dan memulangkan JSON. Kecuali <code>login</code>, setiap permintaan memerlukan <b>token Bearer</b> Sanctum. Aplikasi ini direka untuk <b>pengguna</b> — admin terus guna panel web.</p>
+        <div class="tags">
+          <span class="tag"><b>JSON</b> sahaja</span>
+          <span class="tag"><b>Bearer</b> token (Sanctum)</span>
+          <span class="tag"><b>Token-per-peranti</b></span>
+          <span class="tag"><b>422</b> envelope konsisten</span>
+        </div>
+        <div class="callout">Ganti <b>http://jpp-makmal.test</b> dengan host pelayan anda. Sertakan header <code>Accept: application/json</code> pada setiap permintaan supaya ralat dipulangkan dalam bentuk JSON.</div>
+      </section>
+
+      <!-- AUTH -->
+      <section class="block" id="auth">
+        <div class="kicker">02 — Aliran</div>
+        <h2>Pengesahan</h2>
+        <p>Pengguna hanya menaip <b>email + kata laluan</b>. Pelayan memulangkan satu <b>token unik</b> yang aplikasi simpan dan lampirkan pada setiap permintaan seterusnya. Pengguna tidak pernah melihat atau menaip token.</p>
+        <ol class="steps">
+          <li><b>POST /login</b> dengan email &amp; kata laluan → terima <code>token</code>.</li>
+          <li>Simpan token secara selamat dalam peranti (cth. <code>flutter_secure_storage</code>).</li>
+          <li>Lampirkan pada setiap permintaan: header <code>Authorization: Bearer &lt;token&gt;</code>.</li>
+          <li><b>POST /logout</b> membatalkan token peranti semasa sahaja.</li>
+        </ol>
+        <pre><span class="pre-label">curl</span><button class="pcopy" data-copy='curl -X POST http://jpp-makmal.test/api/v1/login -H "Accept: application/json" -H "Content-Type: application/json" -d {"email":"zarinabinahmad@jpp.gov.my","password":"password","device_name":"flutter"}'>copy</button><code><span class="t-kw">curl</span> -X POST http://jpp-makmal.test/api/v1/login \
+  -H <span class="t-str">"Accept: application/json"</span> \
+  -H <span class="t-str">"Content-Type: application/json"</span> \
+  -d <span class="t-str">'{"email":"zarinabinahmad@jpp.gov.my","password":"password","device_name":"flutter"}'</span></code></pre>
+        <pre><span class="pre-label">200 · response</span><code>{
+  <span class="t-key">"token"</span>: <span class="t-str">"12|aBcD3fGhIjKlMnOpQrStUv..."</span>,
+  <span class="t-key">"user"</span>: {
+    <span class="t-key">"id"</span>: <span class="t-num">4</span>,
+    <span class="t-key">"name"</span>: <span class="t-str">"Zarina bin Ahmad"</span>,
+    <span class="t-key">"email"</span>: <span class="t-str">"zarinabinahmad@jpp.gov.my"</span>,
+    <span class="t-key">"district"</span>: { <span class="t-key">"id"</span>: <span class="t-num">2</span>, <span class="t-key">"name"</span>: <span class="t-str">"Sandakan"</span> }
+  }
+}</code></pre>
+      </section>
+
+      <!-- ENDPOINTS: AUTH -->
+      <section class="block" id="ep-auth">
+        <div class="kicker">03 — Endpoint</div>
+        <h2>Akaun &amp; Token</h2>
+
+        <div class="card">
+          <div class="ep-head">
+            <span class="method post">POST</span>
+            <span class="path">/api/v1/<span style="color:var(--accent)">login</span></span>
+            <span class="lock open">awam · throttle 5/15min</span>
+          </div>
+          <p class="ep-desc">Sahkan kelayakan dan keluarkan token. Gagal kelayakan → <span class="badge-code c422">422</span>; terlalu banyak cubaan → <span class="badge-code c429">429</span>.</p>
+          <pre><span class="pre-label">body</span><code>{ <span class="t-key">"email"</span>: <span class="t-str">"..."</span>, <span class="t-key">"password"</span>: <span class="t-str">"..."</span>, <span class="t-key">"device_name"</span>: <span class="t-str">"flutter"</span> }</code></pre>
+        </div>
+
+        <div class="card">
+          <div class="ep-head">
+            <span class="method post">POST</span>
+            <span class="path">/api/v1/<span style="color:var(--accent)">logout</span></span>
+            <span class="lock">🔒 perlu token</span>
+          </div>
+          <p class="ep-desc">Batalkan token peranti semasa sahaja (peranti lain kekal log masuk).</p>
+        </div>
+
+        <div class="card">
+          <div class="ep-head">
+            <span class="method get">GET</span>
+            <span class="path">/api/v1/<span style="color:var(--accent)">user</span></span>
+            <span class="lock">🔒 perlu token</span>
+          </div>
+          <p class="ep-desc">Maklumat pengguna yang sedang log masuk.</p>
+          <pre><span class="pre-label">200 · response</span><code>{ <span class="t-key">"user"</span>: { <span class="t-key">"id"</span>: <span class="t-num">4</span>, <span class="t-key">"name"</span>: <span class="t-str">"..."</span>, <span class="t-key">"email"</span>: <span class="t-str">"..."</span>, <span class="t-key">"district"</span>: { <span class="t-key">"id"</span>: <span class="t-num">2</span>, <span class="t-key">"name"</span>: <span class="t-str">"Sandakan"</span> } } }</code></pre>
+        </div>
+      </section>
+
+      <!-- ENDPOINTS: ITEMS -->
+      <section class="block" id="ep-items">
+        <div class="kicker">04 — Endpoint</div>
+        <h2>Katalog Item</h2>
+        <p>Hanya item yang <b>tersedia</b> (aktif, status <code>tersedia</code>, ada stok) dipaparkan.</p>
+
+        <div class="card">
+          <div class="ep-head">
+            <span class="method get">GET</span>
+            <span class="path">/api/v1/<span style="color:var(--accent)">items</span></span>
+            <span class="lock">🔒 perlu token</span>
+          </div>
+          <p class="ep-desc">Senarai item tersedia (berhalaman). Parameter pertanyaan: <code>search</code>, <code>category_id</code>, <code>page</code>.</p>
+          <pre><span class="pre-label">200 · response</span><code>{
+  <span class="t-key">"data"</span>: [
+    {
+      <span class="t-key">"id"</span>: <span class="t-num">1</span>,
+      <span class="t-key">"name"</span>: <span class="t-str">"Mikroskop Cahaya Majmuk"</span>,
+      <span class="t-key">"description"</span>: <span class="t-str">"..."</span>,
+      <span class="t-key">"category"</span>: { <span class="t-key">"id"</span>: <span class="t-num">1</span>, <span class="t-key">"name"</span>: <span class="t-str">"Mikroskop &amp; Optik"</span> },
+      <span class="t-key">"available_quantity"</span>: <span class="t-num">10</span>,
+      <span class="t-key">"condition"</span>: <span class="t-str">"baik"</span>,
+      <span class="t-key">"image_url"</span>: <span class="t-kw">null</span>
+    }
+  ],
+  <span class="t-key">"meta"</span>: { <span class="t-key">"current_page"</span>: <span class="t-num">1</span>, <span class="t-key">"total"</span>: <span class="t-num">20</span>, <span class="t-com">"..."</span> }
+}</code></pre>
+        </div>
+
+        <div class="card">
+          <div class="ep-head">
+            <span class="method get">GET</span>
+            <span class="path">/api/v1/<span style="color:var(--accent)">items/{id}</span></span>
+            <span class="lock">🔒 perlu token</span>
+          </div>
+          <p class="ep-desc">Butiran satu item. Item yang <b>tidak tersedia</b> (tidak aktif / dipinjam / kehabisan stok) → <span class="badge-code c404">404</span>.</p>
+        </div>
+      </section>
+
+      <!-- ENDPOINTS: LOANS -->
+      <section class="block" id="ep-loans">
+        <div class="kicker">05 — Endpoint</div>
+        <h2>Permohonan Pinjaman</h2>
+
+        <div class="card">
+          <div class="ep-head">
+            <span class="method post">POST</span>
+            <span class="path">/api/v1/<span style="color:var(--accent)">loan-applications</span></span>
+            <span class="lock">🔒 perlu token</span>
+          </div>
+          <p class="ep-desc">Hantar permohonan baru. Berjaya → <span class="badge-code c2xx">201</span>. Validasi / stok tak cukup / tiada daerah → <span class="badge-code c422">422</span>.</p>
+          <div class="grid2">
+            <pre><span class="pre-label">body</span><code>{
+  <span class="t-key">"items"</span>: [
+    { <span class="t-key">"item_id"</span>: <span class="t-num">1</span>, <span class="t-key">"quantity"</span>: <span class="t-num">2</span> },
+    { <span class="t-key">"item_id"</span>: <span class="t-num">3</span>, <span class="t-key">"quantity"</span>: <span class="t-num">5</span> }
+  ],
+  <span class="t-key">"start_date"</span>: <span class="t-str">"2026-07-05"</span>,
+  <span class="t-key">"end_date"</span>: <span class="t-str">"2026-07-10"</span>,
+  <span class="t-key">"purpose"</span>: <span class="t-str">"Program makmal sekolah"</span>
+}</code></pre>
+            <pre><span class="pre-label">201 · data</span><code>{
+  <span class="t-key">"data"</span>: {
+    <span class="t-key">"application_no"</span>: <span class="t-str">"LA-20260630-251"</span>,
+    <span class="t-key">"status"</span>: <span class="t-str">"menunggu"</span>,
+    <span class="t-key">"items_count"</span>: <span class="t-num">2</span>,
+    <span class="t-key">"items"</span>: [ <span class="t-com">/* ... */</span> ]
+  }
+}</code></pre>
+          </div>
+          <div class="callout"><b>Peraturan:</b> <code>purpose</code> minimum 10 aksara · <code>start_date</code> ≥ hari ini · <code>end_date</code> ≥ <code>start_date</code> · <code>item_id</code> mesti wujud &amp; tidak berulang · kuantiti ≤ stok tersedia.</div>
+        </div>
+
+        <div class="card">
+          <div class="ep-head">
+            <span class="method get">GET</span>
+            <span class="path">/api/v1/<span style="color:var(--accent)">loan-applications</span></span>
+            <span class="lock">🔒 perlu token</span>
+          </div>
+          <p class="ep-desc">Senarai permohonan <b>sendiri</b> sahaja (berhalaman, terkini dahulu).</p>
+        </div>
+
+        <div class="card">
+          <div class="ep-head">
+            <span class="method get">GET</span>
+            <span class="path">/api/v1/<span style="color:var(--accent)">loan-applications/{id}</span></span>
+            <span class="lock">🔒 perlu token</span>
+          </div>
+          <p class="ep-desc">Butiran satu permohonan sendiri. Permohonan milik pengguna lain → <span class="badge-code c403">403</span>.</p>
+        </div>
+      </section>
+
+      <!-- FLUTTER -->
+      <section class="block" id="flutter">
+        <div class="kicker">06 — Integrasi</div>
+        <h2>Integrasi Flutter</h2>
+        <p>Contoh menggunakan <code>dio</code> + <code>flutter_secure_storage</code>. Interceptor melampirkan token secara automatik — pengguna tidak menyentuhnya.</p>
+
+        <pre><span class="pre-label">pubspec.yaml</span><code><span class="t-key">dependencies</span>:
+  dio: <span class="t-str">^5.4.0</span>
+  flutter_secure_storage: <span class="t-str">^9.0.0</span></code></pre>
+
+        <pre><span class="pre-label">api_client.dart · interceptor token</span><button class="pcopy" data-copy="see code">copy</button><code><span class="t-kw">import</span> <span class="t-str">'package:dio/dio.dart'</span>;
+<span class="t-kw">import</span> <span class="t-str">'package:flutter_secure_storage/flutter_secure_storage.dart'</span>;
+
+<span class="t-kw">class</span> ApiClient {
+  ApiClient() {
+    dio = Dio(BaseOptions(
+      baseUrl: <span class="t-str">'http://jpp-makmal.test/api/v1'</span>,
+      headers: {<span class="t-str">'Accept'</span>: <span class="t-str">'application/json'</span>},
+    ));
+
+    dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) <span class="t-kw">async</span> {
+        <span class="t-kw">final</span> token = <span class="t-kw">await</span> _storage.read(key: <span class="t-str">'token'</span>);
+        <span class="t-kw">if</span> (token != <span class="t-kw">null</span>) {
+          options.headers[<span class="t-str">'Authorization'</span>] = <span class="t-str">'Bearer $token'</span>;
+        }
+        handler.next(options);
+      },
+    ));
+  }
+
+  <span class="t-kw">late final</span> Dio dio;
+  <span class="t-kw">final</span> _storage = <span class="t-kw">const</span> FlutterSecureStorage();
+}</code></pre>
+
+        <pre><span class="pre-label">auth_service.dart · login / logout</span><code><span class="t-kw">class</span> AuthService {
+  AuthService(this._client);
+  <span class="t-kw">final</span> ApiClient _client;
+  <span class="t-kw">final</span> _storage = <span class="t-kw">const</span> FlutterSecureStorage();
+
+  Future&lt;<span class="t-kw">void</span>&gt; login(String email, String password) <span class="t-kw">async</span> {
+    <span class="t-kw">final</span> res = <span class="t-kw">await</span> _client.dio.post(<span class="t-str">'/login'</span>, data: {
+      <span class="t-str">'email'</span>: email,
+      <span class="t-str">'password'</span>: password,
+      <span class="t-str">'device_name'</span>: <span class="t-str">'flutter-app'</span>,
+    });
+    <span class="t-kw">await</span> _storage.write(key: <span class="t-str">'token'</span>, value: res.data[<span class="t-str">'token'</span>]);
+  }
+
+  Future&lt;<span class="t-kw">void</span>&gt; logout() <span class="t-kw">async</span> {
+    <span class="t-kw">await</span> _client.dio.post(<span class="t-str">'/logout'</span>);
+    <span class="t-kw">await</span> _storage.delete(key: <span class="t-str">'token'</span>);
+  }
+}</code></pre>
+
+        <pre><span class="pre-label">loan_service.dart · item &amp; permohonan</span><button class="pcopy" data-copy="see code">copy</button><code><span class="t-com">// Senarai item tersedia</span>
+Future&lt;List&lt;<span class="t-kw">dynamic</span>&gt;&gt; fetchItems({String? search}) <span class="t-kw">async</span> {
+  <span class="t-kw">final</span> res = <span class="t-kw">await</span> _client.dio.get(<span class="t-str">'/items'</span>, queryParameters: {
+    <span class="t-kw">if</span> (search != <span class="t-kw">null</span> &amp;&amp; search.isNotEmpty) <span class="t-str">'search'</span>: search,
+  });
+  <span class="t-kw">return</span> res.data[<span class="t-str">'data'</span>];
+}
+
+<span class="t-com">// Hantar permohonan pinjaman</span>
+Future&lt;Map&lt;String, <span class="t-kw">dynamic</span>&gt;&gt; submitApplication({
+  <span class="t-kw">required</span> List&lt;Map&lt;String, <span class="t-kw">int</span>&gt;&gt; items, <span class="t-com">// [{ 'item_id': 1, 'quantity': 2 }]</span>
+  <span class="t-kw">required</span> String startDate,
+  <span class="t-kw">required</span> String endDate,
+  <span class="t-kw">required</span> String purpose,
+}) <span class="t-kw">async</span> {
+  <span class="t-kw">final</span> res = <span class="t-kw">await</span> _client.dio.post(<span class="t-str">'/loan-applications'</span>, data: {
+    <span class="t-str">'items'</span>: items,
+    <span class="t-str">'start_date'</span>: startDate,
+    <span class="t-str">'end_date'</span>: endDate,
+    <span class="t-str">'purpose'</span>: purpose,
+  });
+  <span class="t-kw">return</span> res.data[<span class="t-str">'data'</span>]; <span class="t-com">// 201 Created</span>
+}
+
+<span class="t-com">// Senarai permohonan sendiri</span>
+Future&lt;List&lt;<span class="t-kw">dynamic</span>&gt;&gt; fetchMyApplications() <span class="t-kw">async</span> {
+  <span class="t-kw">final</span> res = <span class="t-kw">await</span> _client.dio.get(<span class="t-str">'/loan-applications'</span>);
+  <span class="t-kw">return</span> res.data[<span class="t-str">'data'</span>];
+}</code></pre>
+      </section>
+
+      <!-- ERRORS -->
+      <section class="block" id="errors">
+        <div class="kicker">07 — Rujukan</div>
+        <h2>Pengendalian Ralat</h2>
+        <p>Setiap respons <code>422</code> menggunakan envelope yang sama, jadi klien boleh mengendalikan ralat secara seragam.</p>
+        <pre><span class="pre-label">422 · envelope</span><code>{
+  <span class="t-key">"message"</span>: <span class="t-str">"..."</span>,
+  <span class="t-key">"errors"</span>: { <span class="t-key">"&lt;medan&gt;"</span>: [ <span class="t-str">"..."</span> ] }
+}</code></pre>
+        <table>
+          <thead><tr><th>Kod</th><th>Maksud</th></tr></thead>
+          <tbody>
+            <tr><td><span class="badge-code c2xx">200 / 201</span></td><td>Berjaya</td></tr>
+            <tr><td><span class="badge-code c422">422</span></td><td>Validasi gagal · stok tak cukup (<code>errors.items</code>) · tiada daerah (<code>errors.district</code>)</td></tr>
+            <tr><td><span class="badge-code c401">401</span></td><td>Token tiada atau tidak sah</td></tr>
+            <tr><td><span class="badge-code c403">403</span></td><td>Mengakses permohonan pengguna lain</td></tr>
+            <tr><td><span class="badge-code c404">404</span></td><td>Item / permohonan tidak ditemui (atau item tidak dalam katalog)</td></tr>
+            <tr><td><span class="badge-code c429">429</span></td><td>Had cubaan log masuk dilampaui (5 / 15 minit)</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- STATUS -->
+      <section class="block" id="status">
+        <div class="kicker">08 — Rujukan</div>
+        <h2>Nilai Status Permohonan</h2>
+        <p>Medan <code>status</code> pada permohonan boleh menjadi salah satu daripada nilai berikut.</p>
+        <div class="tags">
+          <span class="tag"><b>menunggu</b></span>
+          <span class="tag"><b>diluluskan</b></span>
+          <span class="tag"><b>ditolak</b></span>
+          <span class="tag"><b>dibatalkan</b></span>
+          <span class="tag"><b>dipinjam</b></span>
+          <span class="tag"><b>dikembalikan</b></span>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer>
+    <span>JPP Makmal · API Pengguna <span class="accent">v1</span> · Laravel + Sanctum</span>
+    <span>Dokumentasi awam — <span class="accent">/api-docs</span></span>
+  </footer>
+</div>
+
+<script>
+  // copy buttons
+  document.querySelectorAll('[data-copy], .pcopy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var text = btn.getAttribute('data-copy');
+      if (!text || text === 'see code') {
+        var pre = btn.closest('pre');
+        text = pre ? pre.querySelector('code').innerText : '';
+      }
+      navigator.clipboard.writeText(text).then(function () {
+        var old = btn.textContent;
+        btn.textContent = 'DISALIN ✓';
+        setTimeout(function () { btn.textContent = old; }, 1300);
+      });
+    });
+  });
+
+  // active nav highlight
+  var links = Array.prototype.slice.call(document.querySelectorAll('nav.side a'));
+  var map = {};
+  links.forEach(function (a) { map[a.getAttribute('href').slice(1)] = a; });
+  var obs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        links.forEach(function (l) { l.classList.remove('active'); });
+        if (map[e.target.id]) map[e.target.id].classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  document.querySelectorAll('section.block').forEach(function (s) { obs.observe(s); });
+</script>
+</body>
+</html>
