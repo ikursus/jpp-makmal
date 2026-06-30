@@ -7,11 +7,33 @@ use App\Exceptions\InsufficientStockException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StoreLoanApplicationRequest;
 use App\Http\Resources\LoanApplicationResource;
+use App\Models\LoanApplication;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
 class LoanApplicationController extends Controller
 {
+    public function index(Request $request)
+    {
+        $applications = LoanApplication::query()
+            ->withCount('items')
+            ->where('user_id', $request->user()->id)
+            ->latest()
+            ->paginate(10);
+
+        return LoanApplicationResource::collection($applications);
+    }
+
+    public function show(Request $request, LoanApplication $loanApplication)
+    {
+        abort_if($loanApplication->user_id !== $request->user()->id, 403);
+
+        return new LoanApplicationResource(
+            $loanApplication->load('items.item', 'district')
+        );
+    }
+
     public function store(StoreLoanApplicationRequest $request, CreateLoanApplication $action): JsonResponse
     {
         $user = $request->user();

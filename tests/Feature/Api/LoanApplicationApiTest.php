@@ -4,6 +4,7 @@ namespace Tests\Feature\Api;
 
 use App\Models\District;
 use App\Models\Item;
+use App\Models\LoanApplication;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
@@ -112,5 +113,42 @@ class LoanApplicationApiTest extends TestCase
     public function test_submission_requires_authentication(): void
     {
         $this->postJson('/api/v1/loan-applications', [])->assertStatus(401);
+    }
+
+    public function test_user_sees_only_their_own_applications(): void
+    {
+        $user = $this->userWithDistrict();
+        $other = $this->userWithDistrict();
+        LoanApplication::factory()->create(['user_id' => $user->id, 'district_id' => $user->district_id]);
+        LoanApplication::factory()->create(['user_id' => $other->id, 'district_id' => $other->district_id]);
+
+        Sanctum::actingAs($user);
+
+        $this->getJson('/api/v1/loan-applications')
+            ->assertOk()
+            ->assertJsonCount(1, 'data');
+    }
+
+    public function test_user_can_view_their_own_application(): void
+    {
+        $user = $this->userWithDistrict();
+        $app = LoanApplication::factory()->create(['user_id' => $user->id, 'district_id' => $user->district_id]);
+
+        Sanctum::actingAs($user);
+
+        $this->getJson("/api/v1/loan-applications/{$app->id}")
+            ->assertOk()
+            ->assertJsonPath('data.id', $app->id);
+    }
+
+    public function test_user_cannot_view_another_users_application(): void
+    {
+        $user = $this->userWithDistrict();
+        $other = $this->userWithDistrict();
+        $app = LoanApplication::factory()->create(['user_id' => $other->id, 'district_id' => $other->district_id]);
+
+        Sanctum::actingAs($user);
+
+        $this->getJson("/api/v1/loan-applications/{$app->id}")->assertStatus(403);
     }
 }
