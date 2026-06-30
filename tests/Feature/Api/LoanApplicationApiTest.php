@@ -72,7 +72,39 @@ class LoanApplicationApiTest extends TestCase
             'start_date' => now()->addDay()->toDateString(),
             'end_date' => now()->addDays(3)->toDateString(),
             'purpose' => 'Untuk program makmal sekolah',
-        ])->assertStatus(422);
+        ])
+            ->assertStatus(422)
+            ->assertJsonStructure(['message', 'errors' => ['items']]);
+
+        $this->assertDatabaseCount('loan_applications', 0);
+    }
+
+    public function test_submission_fails_when_end_date_before_start_date(): void
+    {
+        $user = $this->userWithDistrict();
+        Sanctum::actingAs($user);
+        $item = Item::factory()->create(['available_quantity' => 5]);
+
+        $this->postJson('/api/v1/loan-applications', [
+            'items' => [['item_id' => $item->id, 'quantity' => 1]],
+            'start_date' => now()->addDays(3)->toDateString(),
+            'end_date' => now()->addDay()->toDateString(),
+            'purpose' => 'Untuk program makmal sekolah',
+        ])->assertStatus(422)->assertJsonValidationErrors('end_date');
+    }
+
+    public function test_submission_fails_when_user_has_no_district(): void
+    {
+        $user = User::factory()->create(['district_id' => null]);
+        Sanctum::actingAs($user);
+        $item = Item::factory()->create(['available_quantity' => 5]);
+
+        $this->postJson('/api/v1/loan-applications', [
+            'items' => [['item_id' => $item->id, 'quantity' => 1]],
+            'start_date' => now()->addDay()->toDateString(),
+            'end_date' => now()->addDays(3)->toDateString(),
+            'purpose' => 'Untuk program makmal sekolah',
+        ])->assertStatus(422)->assertJsonValidationErrors('district');
 
         $this->assertDatabaseCount('loan_applications', 0);
     }
