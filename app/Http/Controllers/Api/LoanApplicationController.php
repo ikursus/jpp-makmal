@@ -10,11 +10,12 @@ use App\Http\Resources\LoanApplicationResource;
 use App\Models\LoanApplication;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Validation\ValidationException;
 
 class LoanApplicationController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): AnonymousResourceCollection
     {
         $applications = LoanApplication::query()
             ->withCount('items')
@@ -25,7 +26,7 @@ class LoanApplicationController extends Controller
         return LoanApplicationResource::collection($applications);
     }
 
-    public function show(Request $request, LoanApplication $loanApplication)
+    public function show(Request $request, LoanApplication $loanApplication): LoanApplicationResource
     {
         abort_if($loanApplication->user_id !== $request->user()->id, 403);
 

@@ -6,10 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\ItemResource;
 use App\Models\Item;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class ItemController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): AnonymousResourceCollection
     {
         $items = Item::query()
             ->with('category')
@@ -24,7 +25,7 @@ class ItemController extends Controller
         return ItemResource::collection($items);
     }
 
-    public function show(string $id)
+    public function show(string $id): ItemResource
     {
         $item = Item::query()
             ->with('category')

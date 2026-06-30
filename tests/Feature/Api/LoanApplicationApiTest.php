@@ -151,4 +151,10 @@ class LoanApplicationApiTest extends TestCase
 
         $this->getJson("/api/v1/loan-applications/{$app->id}")->assertStatus(403);
     }
+
+    public function test_listing_and_viewing_applications_requires_authentication(): void
+    {
+        $this->getJson('/api/v1/loan-applications')->assertStatus(401);
+        $this->getJson('/api/v1/loan-applications/1')->assertStatus(401);
+    }
 }
