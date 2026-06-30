@@ -577,7 +577,19 @@
   }
 }</code></pre>
           </div>
-          <div class="callout"><b>Peraturan:</b> <code>purpose</code> minimum 10 aksara · <code>start_date</code> ≥ hari ini · <code>end_date</code> ≥ <code>start_date</code> · <code>item_id</code> mesti wujud &amp; tidak berulang · kuantiti ≤ stok tersedia.</div>
+          <p style="font-family:var(--mono); font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--faint); margin:20px 0 0;">Parameter Badan (Body)</p>
+          <table>
+            <thead><tr><th>Medan</th><th>Jenis</th><th>Wajib</th><th>Peraturan</th></tr></thead>
+            <tbody>
+              <tr><td><code>items</code></td><td>array</td><td>Ya</td><td>Minimum 1 entri</td></tr>
+              <tr><td><code>items.*.item_id</code></td><td>integer</td><td>Ya</td><td>Mesti wujud dalam jadual <code>items</code>; tidak boleh berulang (distinct)</td></tr>
+              <tr><td><code>items.*.quantity</code></td><td>integer</td><td>Ya</td><td>Minimum 1; mesti ≤ kuantiti tersedia</td></tr>
+              <tr><td><code>start_date</code></td><td>tarikh <span style="color:var(--faint)">(YYYY-MM-DD)</span></td><td>Ya</td><td>≥ hari ini</td></tr>
+              <tr><td><code>end_date</code></td><td>tarikh <span style="color:var(--faint)">(YYYY-MM-DD)</span></td><td>Ya</td><td>≥ <code>start_date</code></td></tr>
+              <tr><td><code>purpose</code></td><td>string</td><td>Ya</td><td>Minimum 10 aksara</td></tr>
+            </tbody>
+          </table>
+          <div class="callout"><b>Prasyarat:</b> header <code>Authorization: Bearer &lt;token&gt;</code> diperlukan, dan akaun mesti mempunyai daerah berdaftar — jika tiada, respons <span class="badge-code c422">422</span> dengan <code>errors.district</code>.</div>
         </div>
 
         <div class="card">
