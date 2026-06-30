@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
             DistrictSeeder::class,
             CategorySeeder::class,
             StorageLocationSeeder::class,
+            ItemSeeder::class,
             UserSeeder::class,
             LoanSeeder::class,
         ]);
