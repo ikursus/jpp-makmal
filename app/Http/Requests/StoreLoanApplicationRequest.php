@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Item;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 class StoreLoanApplicationRequest extends FormRequest
 {
@@ -20,6 +22,27 @@ class StoreLoanApplicationRequest extends FormRequest
             'end_date' => 'required|date|after_or_equal:start_date',
             'purpose' => 'required|string|min:10',
         ];
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator): void {
+            $selected = $this->getSelectedItems();
+
+            if (empty($selected)) {
+                $validator->errors()->add('items', 'Sila masukkan kuantiti sekurang-kurangnya satu barang.');
+
+                return;
+            }
+
+            $selectedIds = collect($selected)->pluck('id');
+            $existingIds = Item::whereIn('id', $selectedIds)->pluck('id');
+            $missingIds = $selectedIds->diff($existingIds);
+
+            if ($missingIds->isNotEmpty()) {
+                $validator->errors()->add('items', 'Sebahagian barang yang dipilih tidak sah.');
+            }
+        });
     }
 
     public function messages(): array
