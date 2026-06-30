@@ -23,10 +23,10 @@ class LoanApplicationResource extends JsonResource
             'items' => LoanApplicationItemResource::collection($this->whenLoaded('items')),
             'items_count' => $this->whenLoaded('items',
                 fn () => $this->items->count(),
-                $this->items_count ?? null
+                $this->items_count
             ),
             'rejection_reason' => $this->rejection_reason,
-            'created_at' => $this->created_at,
+            'created_at' => $this->created_at?->toIso8601String(),
         ];
     }
 }
