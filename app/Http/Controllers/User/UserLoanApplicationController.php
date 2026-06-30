@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreLoanApplicationRequest;
 use App\Models\Item;
 use App\Models\LoanApplication;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -37,8 +38,14 @@ class UserLoanApplicationController extends Controller
         return view('user.loan-application.create', compact('items', 'preselectId'));
     }
 
-    public function store(StoreLoanApplicationRequest $request, CreateLoanApplication $action)
+    public function store(StoreLoanApplicationRequest $request, CreateLoanApplication $action): RedirectResponse
     {
+        if ($request->user()->district_id === null) {
+            return back()
+                ->with('error', 'Akaun anda tiada daerah berdaftar. Sila hubungi pentadbir.')
+                ->withInput();
+        }
+
         try {
             $application = $action->handle(
                 Auth::user(),

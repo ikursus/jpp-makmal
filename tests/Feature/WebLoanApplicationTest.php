@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\District;
 use App\Models\Item;
+use App\Models\LoanApplication;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -33,7 +34,9 @@ class WebLoanApplicationTest extends TestCase
             'purpose' => 'Untuk program makmal sekolah',
         ]);
 
-        $response->assertRedirect();
+        $application = LoanApplication::where('user_id', $user->id)->firstOrFail();
+        $response->assertRedirect(route('user.loan-applications.show', $application->id));
+        $response->assertSessionHas('success', 'Permohonan pinjaman berjaya dihantar.');
         $this->assertDatabaseHas('loan_applications', [
             'user_id' => $user->id,
             'status' => 'menunggu',
@@ -76,6 +79,42 @@ class WebLoanApplicationTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors('items');
+        $this->assertDatabaseCount('loan_applications', 0);
+    }
+
+    public function test_web_submission_with_insufficient_stock_shows_error(): void
+    {
+        $district = District::factory()->create();
+        $user = User::factory()->create(['district_id' => $district->id, 'is_active' => true]);
+        $user->assignRole('user');
+        $item = Item::factory()->create(['available_quantity' => 1]);
+
+        $response = $this->actingAs($user)->from('/user/loan-applications/create')->post('/user/loan-applications', [
+            'items' => [$item->id => 5],
+            'start_date' => now()->addDay()->toDateString(),
+            'end_date' => now()->addDays(3)->toDateString(),
+            'purpose' => 'Untuk program makmal sekolah',
+        ]);
+
+        $response->assertRedirect('/user/loan-applications/create');
+        $response->assertSessionHas('error');
+        $this->assertDatabaseCount('loan_applications', 0);
+    }
+
+    public function test_web_submission_without_district_shows_error(): void
+    {
+        $user = User::factory()->create(['district_id' => null, 'is_active' => true]);
+        $user->assignRole('user');
+        $item = Item::factory()->create(['available_quantity' => 5]);
+
+        $response = $this->actingAs($user)->from('/user/loan-applications/create')->post('/user/loan-applications', [
+            'items' => [$item->id => 2],
+            'start_date' => now()->addDay()->toDateString(),
+            'end_date' => now()->addDays(3)->toDateString(),
+            'purpose' => 'Untuk program makmal sekolah',
+        ]);
+
+        $response->assertSessionHas('error');
         $this->assertDatabaseCount('loan_applications', 0);
     }
 }
