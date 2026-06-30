@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class LoanApplication extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'application_no', 'user_id', 'district_id', 'start_date', 'end_date',
-        'purpose', 'status', 'rejection_reason', 'approved_by', 'approved_at', 'notes'
+        'purpose', 'status', 'rejection_reason', 'approved_by', 'approved_at', 'notes',
     ];
 
     protected function casts(): array
