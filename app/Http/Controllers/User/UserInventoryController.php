@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use App\Models\Item;
 use App\Models\Category;
+use App\Models\Item;
 use Illuminate\Http\Request;
 
 class UserInventoryController extends Controller
@@ -15,7 +15,7 @@ class UserInventoryController extends Controller
             ->where('is_active', true);
 
         if ($request->filled('search')) {
-            $query->where('name', 'like', '%' . $request->input('search') . '%');
+            $query->where('name', 'like', '%'.$request->input('search').'%');
         }
 
         if ($request->filled('category_id')) {
@@ -23,7 +23,8 @@ class UserInventoryController extends Controller
         }
 
         $items = $query->latest()->paginate(12)->withQueryString();
-        $categories = Category::where('is_active', true)->get();
+        $categories = Category::orderBy('name')->get();
+
         return view('user.inventory', compact('items', 'categories'));
     }
 }

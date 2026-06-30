@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Item;
 use App\Models\Category;
+use App\Models\Item;
 use App\Models\StorageLocation;
 use Illuminate\Http\Request;
 
@@ -13,13 +13,15 @@ class ItemController extends Controller
     public function index()
     {
         $items = Item::with(['category', 'storageLocation'])->latest()->paginate(10);
+
         return view('admin.items.index', compact('items'));
     }
 
     public function create()
     {
-        $categories = Category::where('is_active', true)->get();
+        $categories = Category::orderBy('name')->get();
         $storageLocations = StorageLocation::where('is_active', true)->get();
+
         return view('admin.items.create', compact('categories', 'storageLocations'));
     }
 
@@ -48,13 +50,15 @@ class ItemController extends Controller
     public function show(Item $item)
     {
         $item->load(['category', 'storageLocation', 'itemConditions.changedBy']);
+
         return view('admin.items.show', compact('item'));
     }
 
     public function edit(Item $item)
     {
-        $categories = Category::where('is_active', true)->get();
+        $categories = Category::orderBy('name')->get();
         $storageLocations = StorageLocation::where('is_active', true)->get();
+
         return view('admin.items.edit', compact('item', 'categories', 'storageLocations'));
     }
 
